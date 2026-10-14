@@ -1,9 +1,11 @@
 import express from "express";
 import mysql from "mysql2/promise";
 import { myConfig } from "./configDatabase.js";
+import cors from "cors";
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 let connection;
 
@@ -57,6 +59,21 @@ app.delete("/todos/:reqId", async (request, response) => {
 		const sql = `DELETE FROM todolist WHERE id = ?`;
 		await connection.execute(sql, [reqId]);
 		response.status(200).json({ msg: "Sikeres törlés" });
+	} catch (error) {
+		console.log(error);
+	}
+});
+
+app.post("/todos/login", async (request, response) => {
+	try {
+		const { username, password } = request.body;
+		if (
+			username === process.env.LOGIN_USERNAME ||
+			password === process.env.LOGIN_PASSWORD
+		) {
+			response.json({ success: true, msg: "Sikeres bejelentkezés!" });
+		}
+		response.json({ success: false, msg: "Hibás felhasználónév vagy jelszó!" });
 	} catch (error) {
 		console.log(error);
 	}
